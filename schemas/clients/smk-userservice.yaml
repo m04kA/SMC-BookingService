@@ -1,0 +1,98 @@
+openapi: 3.1.0
+info:
+  title: "UserService API"
+  description: "API для управления пользователями и их автомобилями в приложении для автомойки."
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080/
+    description: Production Server
+
+paths:
+  /internal/users/{tg_user_id}/cars/selected:
+    get:
+      tags: [Internal]
+      summary: "Получение выбранного автомобиля пользователя (межсервисное взаимодействие)"
+      description: "Endpoint для получения текущего выбранного автомобиля пользователя другими сервисами."
+      parameters:
+        - name: tg_user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: "Telegram user ID пользователя."
+          example: 123456789
+      responses:
+        '200':
+          description: "Успешный ответ с данными выбранного автомобиля."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Car'
+        '400':
+          description: "Некорректный формат user ID."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: "У пользователя нет выбранного автомобиля."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    # --- МОДЕЛИ ДАННЫХ ---
+    Car:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Уникальный ID автомобиля."
+          readOnly: true
+        user_id:
+          type: integer
+          format: int64
+          description: "ID пользователя-владельца автомобиля."
+          readOnly: true
+        brand:
+          type: string
+          description: "Марка автомобиля."
+          example: "BMW"
+        model:
+          type: string
+          description: "Модель автомобиля."
+          example: "X5"
+        license_plate:
+          type: string
+          description: "Государственный регистрационный номер."
+          example: "А123БВ799"
+        color:
+          type: string
+          description: "Цвет автомобиля."
+          example: "Черный"
+        size:
+          type: string
+          description: "Класс автомобиля согласно европейской системе классов (A — мини-автомобили, B — малые, C — средние (гольф-класс), D — большие средние, E — бизнес-класс, F — люксовые, J — внедорожники, M — минивэны, S — спорткары). Используется для расчета цены."
+          example: "E"
+        is_selected:
+          type: boolean
+          description: "Флаг, указывающий, является ли данный автомобиль выбранным (текущим) для пользователя."
+          example: true
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: "Код ошибки."
+          example: 400
+        message:
+          type: string
+          description: "Описание ошибки."
+          example: "Validation failed."
+
+

@@ -1,0 +1,40 @@
+# Логирование
+[logs]
+level = "info"                 # Уровень логирования: debug, info, warn, error
+file = "./logs/app.log"        # Путь к файлу логов
+
+# HTTP сервер
+[server]
+http_port = 8083               # Порт HTTP сервера
+read_timeout = 15              # Таймаут чтения (секунды)
+write_timeout = 15             # Таймаут записи (секунды)
+idle_timeout = 60              # Таймаут idle соединений (секунды)
+shutdown_timeout = 10          # Таймаут graceful shutdown (секунды)
+
+# База данных PostgreSQL
+[database]
+host = "localhost"             # Хост БД (переопределяется через DB_HOST)
+port = 5438                    # Порт БД (переопределяется через DB_PORT)
+user = "postgres"              # Пользователь БД (переопределяется через DB_USER)
+password = "postgres"          # Пароль БД (переопределяется через DB_PASSWORD)
+dbname = "smk_bookingservice"  # Имя БД (переопределяется через DB_NAME)
+sslmode = "disable"            # SSL режим (переопределяется через DB_SSLMODE)
+max_open_conns = 25            # Максимум открытых соединений
+max_idle_conns = 5             # Максимум idle соединений
+conn_max_lifetime = 300        # Время жизни соединения (секунды)
+
+# Метрики Prometheus
+[metrics]
+enabled = true                 # Включить сбор метрик (переопределяется через METRICS_ENABLED)
+path = "/metrics"              # Путь для Prometheus метрик
+service_name = "bookingservice" # Имя сервиса для меток в метриках
+
+# Интеграция с UserService
+[userservice]
+url = "http://localhost:8080"  # URL UserService (переопределяется через USERSERVICE_URL)
+timeout = 10                   # Таймаут для HTTP запросов (секунды)
+
+# Интеграция с SellerService
+[sellerservice]
+url = "http://localhost:8081"  # URL SellerService (переопределяется через SELLERSERVICE_URL)
+timeout = 10                   # Таймаут для HTTP запросов (секунды)
