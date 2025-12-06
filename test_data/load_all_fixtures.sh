@@ -17,14 +17,14 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Пути к проектам
-SELLER_SERVICE_PATH="../SMK-SellerService"
-USER_SERVICE_PATH="../SMK-UserService"
+SELLER_SERVICE_PATH="../SMC-SellerService"
+USER_SERVICE_PATH="../SMC-UserService"
 PRICE_SERVICE_PATH="../SMC-PriceService"
 BOOKING_SERVICE_PATH="."
 
 # Имена контейнеров БД
-SELLER_DB="smk-sellerservice-db"
-USER_DB="smk-userservice-db"
+SELLER_DB="smc-sellerservice-db"
+USER_DB="smc-userservice-db"
 PRICE_DB="smc-priceservice-db"
 BOOKING_DB="bookingservice-db"
 
@@ -130,7 +130,7 @@ main() {
 
     # SellerService
     echo "[1/4] SellerService"
-    load_fixture "$SELLER_DB" "smk_sellerservice" \
+    load_fixture "$SELLER_DB" "smc_sellerservice" \
         "$SELLER_SERVICE_PATH/migrations/fixtures/001_test_companies.sql" \
         "Компании, адреса, услуги" || all_ok=false
 
@@ -138,7 +138,7 @@ main() {
 
     # UserService
     echo "[2/4] UserService"
-    load_fixture "$USER_DB" "smk_userservice" \
+    load_fixture "$USER_DB" "smc_userservice" \
         "$USER_SERVICE_PATH/migrations/fixtures/001_test_users.sql" \
         "Пользователи, автомобили" || all_ok=false
 
@@ -154,11 +154,11 @@ main() {
 
     # BookingService
     echo "[4/4] BookingService"
-    load_fixture "$BOOKING_DB" "smk_bookingservice" \
+    load_fixture "$BOOKING_DB" "smc_bookingservice" \
         "$BOOKING_SERVICE_PATH/migrations/fixtures/001_company_configs.sql" \
         "Конфигурация слотов" || all_ok=false
 
-    load_fixture "$BOOKING_DB" "smk_bookingservice" \
+    load_fixture "$BOOKING_DB" "smc_bookingservice" \
         "$BOOKING_SERVICE_PATH/migrations/fixtures/002_bookings.sql" \
         "Тестовые бронирования" || all_ok=false
 
@@ -168,14 +168,14 @@ main() {
     print_header "3. Проверка загруженных данных"
 
     echo "SellerService:"
-    check_count "$SELLER_DB" "smk_sellerservice" "companies" "3"
-    check_count "$SELLER_DB" "smk_sellerservice" "addresses" "4"
-    check_count "$SELLER_DB" "smk_sellerservice" "services" "5"
+    check_count "$SELLER_DB" "smc_sellerservice" "companies" "3"
+    check_count "$SELLER_DB" "smc_sellerservice" "addresses" "4"
+    check_count "$SELLER_DB" "smc_sellerservice" "services" "5"
 
     echo ""
     echo "UserService:"
-    check_count "$USER_DB" "smk_userservice" "users" "11"
-    docker exec "$USER_DB" psql -U postgres -d smk_userservice -t -c "SELECT COUNT(*) FROM cars WHERE is_selected = true;" > /tmp/cars_count 2>/dev/null
+    check_count "$USER_DB" "smc_userservice" "users" "11"
+    docker exec "$USER_DB" psql -U postgres -d smc_userservice -t -c "SELECT COUNT(*) FROM cars WHERE is_selected = true;" > /tmp/cars_count 2>/dev/null
     local cars_selected=$(cat /tmp/cars_count | tr -d ' ')
     if [ "$cars_selected" == "7" ]; then
         print_success "cars (selected): 7/7 записей"
@@ -190,8 +190,8 @@ main() {
 
     echo ""
     echo "BookingService:"
-    check_count "$BOOKING_DB" "smk_bookingservice" "company_slots_config" "7"
-    check_count "$BOOKING_DB" "smk_bookingservice" "bookings" "15"
+    check_count "$BOOKING_DB" "smc_bookingservice" "company_slots_config" "7"
+    check_count "$BOOKING_DB" "smc_bookingservice" "bookings" "15"
 
     # ==========================================
     # Итоги

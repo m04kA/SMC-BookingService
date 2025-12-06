@@ -26,6 +26,8 @@ TOMORROW=$(date -v+1d +%Y-%m-%d 2>/dev/null || date -d tomorrow +%Y-%m-%d)
 TODAY=$(date +%Y-%m-%d)
 YESTERDAY=$(date -v-1d +%Y-%m-%d 2>/dev/null || date -d yesterday +%Y-%m-%d)
 DAY_AFTER_TOMORROW=$(date -v+2d +%Y-%m-%d 2>/dev/null || date -d "+2 days" +%Y-%m-%d)
+# Следующий понедельник (рабочий день для компании 1, которая не работает в воскресенье)
+NEXT_MONDAY=$(date -v+mon +%Y-%m-%d 2>/dev/null || date -d "next monday" +%Y-%m-%d)
 
 # Функции для вывода
 print_header() {
@@ -50,10 +52,10 @@ print_error() {
 # 1. Available Slots (Получение свободных слотов)
 # ==========================================
 
-# TC-1.1: Получение слотов на завтрашний день (обычный сценарий)
+# TC-1.1: Получение слотов на ближайший рабочий день (понедельник)
 tc_1_1() {
-    print_test "TC-1.1: Получение слотов на завтра (компания 1, адрес 100, услуга 1)"
-    curl -s -X GET "${BASE_URL}/api/v1/companies/1/addresses/100/available-slots?serviceId=1&date=${TOMORROW}" \
+    print_test "TC-1.1: Получение слотов на ближайший понедельник (компания 1, адрес 100, услуга 1)"
+    curl -s -X GET "${BASE_URL}/api/v1/companies/1/addresses/100/available-slots?serviceId=1&date=${NEXT_MONDAY}" \
       -H "Content-Type: application/json" | jq .
 }
 
@@ -124,12 +126,13 @@ tc_2_1() {
     print_test "TC-2.1: Успешное создание бронирования (ожидается 201)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 1,
         \"addressId\": 100,
         \"serviceId\": 1,
-        \"bookingDate\": \"${TOMORROW}\",
+        \"bookingDate\": \"${NEXT_MONDAY}\",
         \"startTime\": \"11:00\"
       }" -w "\nHTTP Code: %{http_code}\n" | jq .
 }
@@ -139,6 +142,7 @@ tc_2_2() {
     print_test "TC-2.2: Создание бронирования с notes"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 1,
@@ -155,6 +159,7 @@ tc_2_3() {
     print_test "TC-2.3: Параллельное бронирование (2 бокса свободно)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 987654321" \
       -d "{
         \"userId\": 987654321,
         \"companyId\": 1,
@@ -170,6 +175,7 @@ tc_2_4() {
     print_test "TC-2.4: Попытка забронировать полностью занятый слот (ожидается 409)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 111222333" \
       -d "{
         \"userId\": 111222333,
         \"companyId\": 1,
@@ -185,6 +191,7 @@ tc_2_7() {
     print_test "TC-2.7: Пользователь без выбранного автомобиля (ожидается 400)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 999999999" \
       -d "{
         \"userId\": 999999999,
         \"companyId\": 1,
@@ -200,6 +207,7 @@ tc_2_8() {
     print_test "TC-2.8: Несуществующая компания (ожидается 404)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 99999,
@@ -215,6 +223,7 @@ tc_2_10() {
     print_test "TC-2.10: Услуга 3 недоступна на адресе 100 (ожидается 400)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 1,
@@ -230,6 +239,7 @@ tc_2_14() {
     print_test "TC-2.14: Невалидный формат даты (ожидается 400)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 1,
@@ -245,6 +255,7 @@ tc_2_15() {
     print_test "TC-2.15: Невалидный формат времени (ожидается 400)"
     curl -s -X POST "${BASE_URL}/api/v1/bookings" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"companyId\": 1,
@@ -306,6 +317,7 @@ tc_4_1() {
     print_test "TC-4.1: Отмена своего бронирования (ID: $BOOKING_ID)"
     curl -s -X PATCH "${BASE_URL}/api/v1/bookings/${BOOKING_ID}/cancel" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 123456789" \
       -d "{
         \"userId\": 123456789,
         \"cancellationReason\": \"Изменились планы\"
@@ -318,6 +330,7 @@ tc_4_2() {
     print_test "TC-4.2: Отмена без причины (ID: $BOOKING_ID)"
     curl -s -X PATCH "${BASE_URL}/api/v1/bookings/${BOOKING_ID}/cancel" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 987654321" \
       -d "{
         \"userId\": 987654321
       }" -w "\nHTTP Code: %{http_code}\n" | jq .
@@ -329,6 +342,7 @@ tc_4_3() {
     print_test "TC-4.3: Попытка отменить чужое бронирование (ожидается 403)"
     curl -s -X PATCH "${BASE_URL}/api/v1/bookings/${BOOKING_ID}/cancel" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 999999999" \
       -d "{
         \"userId\": 999999999,
         \"cancellationReason\": \"Хочу отменить\"
@@ -341,6 +355,7 @@ tc_4_4() {
     print_test "TC-4.4: Отмена бронирования менеджером компании"
     curl -s -X PATCH "${BASE_URL}/api/v1/bookings/${BOOKING_ID}/cancel" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 777777777" \
       -d "{
         \"userId\": 777777777,
         \"cancellationReason\": \"Технические работы на мойке\"
@@ -491,6 +506,7 @@ tc_8_1() {
     print_test "TC-8.1: Обновление глобальной конфигурации компании $COMPANY_ID"
     curl -s -X PUT "${BASE_URL}/api/v1/companies/${COMPANY_ID}/config" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 777777777" \
       -d "{
         \"userId\": 777777777,
         \"slotDurationMinutes\": 60,
@@ -507,6 +523,7 @@ tc_8_2() {
     print_test "TC-8.2: Создание конфигурации для адреса $ADDRESS_ID"
     curl -s -X PUT "${BASE_URL}/api/v1/companies/${COMPANY_ID}/config" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 777777777" \
       -d "{
         \"userId\": 777777777,
         \"addressId\": ${ADDRESS_ID},
@@ -523,6 +540,7 @@ tc_8_4() {
     print_test "TC-8.4: Попытка обновления не-менеджером (ожидается 403)"
     curl -s -X PUT "${BASE_URL}/api/v1/companies/${COMPANY_ID}/config" \
       -H "Content-Type: application/json" \
+      -H "X-User-ID: 999999999" \
       -d "{
         \"userId\": 999999999,
         \"slotDurationMinutes\": 30,

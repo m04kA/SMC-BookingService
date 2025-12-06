@@ -457,7 +457,7 @@ Content-Type: application/json
 │   ├── schema.yaml       # API сервиса
 │   └── clients/          # Схемы других сервисов
 │       ├── smc-sellerservice.yaml
-│       └── smk-userservice.yaml
+│       └── smc-userservice.yaml
 └── test_data/           # Тестовые данные
 ```
 
@@ -1046,7 +1046,7 @@ DB_HOST=postgres
 DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=smk_bookingservice
+DB_NAME=smc_bookingservice
 DB_SSLMODE=disable
 
 # Server
@@ -1080,7 +1080,7 @@ host = "localhost"
 port = 5432
 user = "postgres"
 password = "postgres"
-dbname = "smk_bookingservice"
+dbname = "smc_bookingservice"
 sslmode = "disable"
 max_open_conns = 25
 max_idle_conns = 5
@@ -1103,8 +1103,8 @@ BookingService зависит от других микросервисов. Дл
 
 ```bash
 # 1. Запустить SellerService, UserService, PriceService (см. документацию каждого сервиса)
-cd ../SMK-SellerService && docker-compose up -d
-cd ../SMK-UserService && docker-compose up -d
+cd ../SMC-SellerService && docker-compose up -d
+cd ../SMC-UserService && docker-compose up -d
 cd ../SMC-PriceService && docker-compose up -d
 
 # 2. Запустить BookingService

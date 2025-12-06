@@ -1,7 +1,7 @@
 .PHONY: help build run test clean clean-all docker-build docker-up docker-down docker-restart docker-logs docker-clean docker-prune migrate-up migrate-down db-reset fixtures test-api test-smoke
 
 # Variables
-APP_NAME=smk_bookingservice
+APP_NAME=smc_bookingservice
 DOCKER_COMPOSE=docker-compose
 GO=go
 
@@ -99,7 +99,7 @@ docker-clean:
 
 docker-prune:
 	@echo "Removing project Docker images..."
-	@docker images | grep smk-sellerservice | awk '{print $$3}' | xargs -r docker rmi -f || true
+	@docker images | grep smc-sellerservice | awk '{print $$3}' | xargs -r docker rmi -f || true
 	@echo "Docker images removed"
 
 # Database commands
@@ -112,7 +112,7 @@ migrate-up:
 
 migrate-down:
 	@echo "Rolling back database migrations..."
-	@$(DOCKER_COMPOSE) run --rm migrate -path /migrations -database "postgres://postgres:postgres@postgres:5432/smk_bookingservice?sslmode=disable" down
+	@$(DOCKER_COMPOSE) run --rm migrate -path /migrations -database "postgres://postgres:postgres@postgres:5432/smc_bookingservice?sslmode=disable" down
 	@echo "Migrations rolled back"
 
 db-reset:
@@ -126,8 +126,8 @@ db-reset:
 # Development helpers
 fixtures:
 	@echo "Loading test fixtures..."
-	@docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice < migrations/fixtures/001_company_configs.sql
-	@docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice < migrations/fixtures/002_bookings.sql
+	@docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice < migrations/fixtures/001_company_configs.sql
+	@docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice < migrations/fixtures/002_bookings.sql
 	@echo "Fixtures loaded successfully!"
 	@echo ""
 	@echo "Test data created:"

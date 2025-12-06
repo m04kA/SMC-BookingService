@@ -50,21 +50,21 @@ chmod +x test_data/load_all_fixtures.sh
 
 ```bash
 # 1. SellerService (компании, адреса, услуги)
-docker exec -i sellerservice-db psql -U postgres -d smk_sellerservice \
-  < ~/GolandProjects/SMK-SellerService/migrations/fixtures/001_test_companies.sql
+docker exec -i sellerservice-db psql -U postgres -d smc_sellerservice \
+  < ~/GolandProjects/SMC-SellerService/migrations/fixtures/001_test_companies.sql
 
 # 2. UserService (пользователи, автомобили)
-docker exec -i userservice-db psql -U postgres -d smk_userservice \
-  < ~/GolandProjects/SMK-UserService/migrations/fixtures/001_test_users.sql
+docker exec -i userservice-db psql -U postgres -d smc_userservice \
+  < ~/GolandProjects/SMC-UserService/migrations/fixtures/001_test_users.sql
 
 # 3. PriceService (правила ценообразования)
 docker exec -i priceservice-db psql -U postgres -d smc_priceservice \
   < ~/GolandProjects/SMC-PriceService/migrations/fixtures/001_test_pricing_rules.sql
 
 # 4. BookingService (конфигурация слотов, бронирования)
-docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice \
+docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice \
   < migrations/fixtures/001_company_configs.sql
-docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice \
+docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice \
   < migrations/fixtures/002_bookings.sql
 ```
 
@@ -74,7 +74,7 @@ docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice \
 
 ### 1. SellerService
 
-**Файл**: `SMK-SellerService/migrations/fixtures/001_test_companies.sql`
+**Файл**: `SMC-SellerService/migrations/fixtures/001_test_companies.sql`
 
 **Содержимое**:
 - 3 компании (Автомойка Премиум, СТО Профи, Детейлинг Центр)
@@ -91,13 +91,13 @@ docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice \
 
 **Проверка**:
 ```bash
-docker exec -it sellerservice-db psql -U postgres -d smk_sellerservice \
+docker exec -it sellerservice-db psql -U postgres -d smc_sellerservice \
   -c "SELECT id, name FROM companies;"
 ```
 
 ### 2. UserService
 
-**Файл**: `SMK-UserService/migrations/fixtures/001_test_users.sql`
+**Файл**: `SMC-UserService/migrations/fixtures/001_test_users.sql`
 
 **Содержимое**:
 - 11 пользователей:
@@ -114,7 +114,7 @@ docker exec -it sellerservice-db psql -U postgres -d smk_sellerservice \
 
 **Проверка**:
 ```bash
-docker exec -it userservice-db psql -U postgres -d smk_userservice \
+docker exec -it userservice-db psql -U postgres -d smc_userservice \
   -c "SELECT u.tg_user_id, u.name, c.brand, c.model FROM users u LEFT JOIN cars c ON u.tg_user_id = c.user_id WHERE c.is_selected = true;"
 ```
 
@@ -158,7 +158,7 @@ docker exec -it priceservice-db psql -U postgres -d smc_priceservice \
 
 **Проверка**:
 ```bash
-docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice \
+docker exec -it bookingservice-db psql -U postgres -d smc_bookingservice \
   -c "SELECT company_id, address_id, service_id, max_concurrent_bookings FROM company_slots_config ORDER BY company_id, address_id NULLS FIRST, service_id NULLS FIRST;"
 ```
 
@@ -200,13 +200,13 @@ docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice \
 #!/bin/bash
 
 echo "=== Проверка SellerService ==="
-docker exec -it sellerservice-db psql -U postgres -d smk_sellerservice \
+docker exec -it sellerservice-db psql -U postgres -d smc_sellerservice \
   -c "SELECT COUNT(*) as companies FROM companies;" \
   -c "SELECT COUNT(*) as addresses FROM addresses;" \
   -c "SELECT COUNT(*) as services FROM services;"
 
 echo -e "\n=== Проверка UserService ==="
-docker exec -it userservice-db psql -U postgres -d smk_userservice \
+docker exec -it userservice-db psql -U postgres -d smc_userservice \
   -c "SELECT COUNT(*) as users FROM users;" \
   -c "SELECT COUNT(*) as cars FROM cars WHERE is_selected = true;"
 
@@ -215,7 +215,7 @@ docker exec -it priceservice-db psql -U postgres -d smc_priceservice \
   -c "SELECT COUNT(*) as pricing_rules FROM pricing_rules;"
 
 echo -e "\n=== Проверка BookingService ==="
-docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice \
+docker exec -it bookingservice-db psql -U postgres -d smc_bookingservice \
   -c "SELECT COUNT(*) as configs FROM company_slots_config;" \
   -c "SELECT COUNT(*) as bookings FROM bookings;"
 ```
@@ -265,11 +265,11 @@ docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice \
 
 ```bash
 # SellerService
-docker exec -it sellerservice-db psql -U postgres -d smk_sellerservice \
+docker exec -it sellerservice-db psql -U postgres -d smc_sellerservice \
   -c "TRUNCATE companies CASCADE;"
 
 # UserService
-docker exec -it userservice-db psql -U postgres -d smk_userservice \
+docker exec -it userservice-db psql -U postgres -d smc_userservice \
   -c "TRUNCATE users CASCADE;"
 
 # PriceService
@@ -277,7 +277,7 @@ docker exec -it priceservice-db psql -U postgres -d smc_priceservice \
   -c "TRUNCATE pricing_rules CASCADE;"
 
 # BookingService
-docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice \
+docker exec -it bookingservice-db psql -U postgres -d smc_bookingservice \
   -c "TRUNCATE bookings CASCADE; TRUNCATE company_slots_config CASCADE;"
 ```
 
@@ -328,8 +328,8 @@ docker-compose up -d <service-name>-db
 
 ## Дополнительные ресурсы
 
-- [SellerService Fixtures](../../../SMK-SellerService/migrations/fixtures/README.md)
-- [UserService Fixtures](../../../SMK-UserService/migrations/fixtures/README.md)
+- [SellerService Fixtures](../../../SMC-SellerService/migrations/fixtures/README.md)
+- [UserService Fixtures](../../../SMC-UserService/migrations/fixtures/README.md)
 - [PriceService Fixtures](../../../SMC-PriceService/migrations/fixtures/README.md)
 - [BookingService Fixtures](../../migrations/fixtures/README.md)
 - [BookingService Test Plan](TEST_PLAN.md)

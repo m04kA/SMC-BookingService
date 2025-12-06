@@ -380,7 +380,7 @@ brew install jq
 
 Если возникли проблемы:
 1. Проверьте логи: `make docker-logs-app`
-2. Проверьте БД: `docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice`
+2. Проверьте БД: `docker exec -it bookingservice-db psql -U postgres -d smc_bookingservice`
 3. Пересоздайте окружение: `make db-reset && make fixtures`
 
 **Happy Testing! 🚀**

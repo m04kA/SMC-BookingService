@@ -10,8 +10,8 @@ make db-reset
 make fixtures
 
 # Или вручную через psql
-docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice < migrations/fixtures/001_company_configs.sql
-docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice < migrations/fixtures/002_bookings.sql
+docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice < migrations/fixtures/001_company_configs.sql
+docker exec -i bookingservice-db psql -U postgres -d smc_bookingservice < migrations/fixtures/002_bookings.sql
 ```
 
 ## Содержимое фикстур
@@ -251,7 +251,7 @@ docker exec -i bookingservice-db psql -U postgres -d smk_bookingservice < migrat
 
 ```bash
 # Подключиться к БД
-docker exec -it bookingservice-db psql -U postgres -d smk_bookingservice
+docker exec -it bookingservice-db psql -U postgres -d smc_bookingservice
 
 # Проверить конфигурации
 SELECT company_id, address_id, service_id, max_concurrent_bookings, advance_booking_days
